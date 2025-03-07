@@ -1,15 +1,16 @@
 import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
 import {
+  type ChatHistoryResponse,
   type Message,
   type MessageChoice,
   type SupportTicket,
 } from "../types/types.js";
 import {
+  processChatHistoryQuery,
   processMessage,
   processOther,
   processSupport,
   processSupportHelp,
-  processSupportOther,
   processSupportQuestion,
 } from "./nodes.js";
 import { processMessageEdges, processSupportEdges } from "./edges.js";
@@ -19,12 +20,13 @@ const state = Annotation.Root({
   previousMessages: Annotation<Message[]>(),
   messageChoice: Annotation<MessageChoice>(),
   supportTicket: Annotation<SupportTicket>(),
+  chatHistoryResponse: Annotation<ChatHistoryResponse>(),
 });
 
 export type State = typeof state.State;
 export type Update = typeof state.Update;
 
-export async function initializeGraph() {
+export function initializeGraph() {
   const workflow = new StateGraph(state);
 
   workflow
@@ -34,21 +36,23 @@ export async function initializeGraph() {
 
     .addNode("process-support-question", processSupportQuestion)
     .addNode("process-support-help", processSupportHelp)
-    .addNode("process-support-other", processSupportOther)
+    .addNode("process-chat-history-query", processChatHistoryQuery)
 
+    // Edges setup starts
     .addEdge(START, "process-message")
     .addConditionalEdges("process-message", processMessageEdges)
     .addConditionalEdges("process-support", processSupportEdges)
 
+    .addEdge("process-chat-history-query", END)
     .addEdge("process-other", END)
     .addEdge("process-support-question", END)
-    .addEdge("process-support-help", END)
-    .addEdge("process-support-other", END);
+    .addEdge("process-support-help", END);
 
   const graph = workflow.compile();
 
   // To get the graph in png
-  Bun.write("graph/graph.png", await graph.getGraph().drawMermaidPng());
+  // getGraph() is deprecated though
+  // Bun.write("graph/graph.png", await graph.getGraph().drawMermaidPng());
 
   return graph;
 }

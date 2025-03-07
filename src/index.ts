@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { Client, Events, GatewayIntentBits } from "discord.js";
-import { initializeGraph, type State } from "./graph.js";
+import { initializeGraph } from "./graph.js";
 import { type Message } from "../types/types.js";
 import { tryCatch } from "../utils/try-catch.js";
 
@@ -56,15 +56,38 @@ client.on(Events.MessageCreate, async (readyClient) => {
     message: {
       author: readyClient.author.username,
       content: userMessage,
-    },
+    } as Message,
     previousMessages: lastFewMessages,
-  } as State;
+  };
 
   try {
     const finalState = await graph.invoke(graphInput);
     console.log(finalState);
+
+    // Currently, I'm simply sending a msg, but depending on the context
+    // we can create an embed, tag relevant mods or anything else.
+    // Once confirmed with the team, I'll implement this.
+    if (finalState.chatHistoryResponse) {
+      const response = finalState.chatHistoryResponse.isRelevantTopic
+        ? finalState.chatHistoryResponse.response
+        : "I'm sorry, I'm only able to help with AIs and CopilotKit";
+      await readyClient.reply(response);
+      return;
+    }
+
+    if (finalState.supportTicket?.question?.answer) {
+      await readyClient.reply(finalState.supportTicket.question.answer);
+      return;
+    }
+
+    await readyClient.reply(
+      "I'm not sure if I have a response to this request :(",
+    );
   } catch (error) {
     console.error("Error generating AI response:", error);
+    await readyClient.reply(
+      "Sorry, I encountered an error while processing your request.",
+    );
   }
 });
 
