@@ -16,7 +16,6 @@ const client = new Client({
   ],
 });
 
-const lastFewMessages: Message[] = [];
 const discordIdRegex = /<@(\d+)>/g;
 
 client.on(Events.ClientReady, async (readyClient) => {
@@ -28,22 +27,6 @@ client.on(Events.ClientReady, async (readyClient) => {
     console.error("Invalid channel or channel type is not supported");
     return;
   }
-
-  const { data, error } = await tryCatch(channel.messages.fetch({ limit: 10 }));
-  if (error) {
-    console.error("Error fetching messages:", error);
-    return;
-  }
-
-  console.log("Retrieved messages count:", data.size);
-
-  data.forEach((message) => {
-    message.content = message.content.replace(discordIdRegex, "").trim();
-    lastFewMessages.push({
-      author: message.author.username,
-      content: message.content,
-    });
-  });
 });
 
 client.on(Events.MessageCreate, async (readyClient) => {
@@ -57,30 +40,19 @@ client.on(Events.MessageCreate, async (readyClient) => {
       author: readyClient.author.username,
       content: userMessage,
     } as Message,
-    previousMessages: lastFewMessages,
   };
 
   try {
+    const initialResponse = await readyClient.reply("Processing...");
     const finalState = await graph.invoke(graphInput);
-    console.log(finalState);
-
-    // Currently, I'm simply sending a msg, but depending on the context
-    // we can create an embed, tag relevant mods or anything else.
-    // Once confirmed with the team, I'll implement this.
-    if (finalState.chatHistoryResponse) {
-      const response = finalState.chatHistoryResponse.isRelevantTopic
-        ? finalState.chatHistoryResponse.response
-        : "I'm sorry, I'm only able to help with AIs and CopilotKit";
-      await readyClient.reply(response);
-      return;
-    }
+    // console.log(finalState);
 
     if (finalState.supportTicket?.question?.answer) {
-      await readyClient.reply(finalState.supportTicket.question.answer);
+      await initialResponse.edit(finalState.supportTicket.question.answer);
       return;
     }
 
-    await readyClient.reply(
+    await initialResponse.edit(
       "I'm not sure if I have a response to this request :(",
     );
   } catch (error) {

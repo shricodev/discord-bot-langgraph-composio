@@ -1,24 +1,13 @@
 import { END } from "@langchain/langgraph";
 import { type State } from "./graph.js";
-import {
-  QUESTION,
-  OTHER,
-  SUPPORT,
-  CHAT_HISTORY_QUERY,
-} from "../types/types.js";
+import { QUESTION, OTHER, SUPPORT } from "../types/types.js";
 
 export const processMessageEdges = (
   state: State,
-):
-  | "process-support"
-  | "process-other"
-  | "process-chat-history-query"
-  | "__end__" => {
+): "process-support" | "process-other" | "__end__" => {
   switch (state.messageChoice) {
     case SUPPORT:
       return "process-support";
-    case CHAT_HISTORY_QUERY:
-      return "process-chat-history-query";
     case OTHER:
       return "process-other";
 

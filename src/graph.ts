@@ -1,12 +1,10 @@
 import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
 import {
-  type ChatHistoryResponse,
   type Message,
   type MessageChoice,
   type SupportTicket,
 } from "../types/types.js";
 import {
-  processChatHistoryQuery,
   processMessage,
   processOther,
   processSupport,
@@ -20,7 +18,6 @@ const state = Annotation.Root({
   previousMessages: Annotation<Message[]>(),
   messageChoice: Annotation<MessageChoice>(),
   supportTicket: Annotation<SupportTicket>(),
-  chatHistoryResponse: Annotation<ChatHistoryResponse>(),
 });
 
 export type State = typeof state.State;
@@ -36,14 +33,12 @@ export function initializeGraph() {
 
     .addNode("process-support-question", processSupportQuestion)
     .addNode("process-support-help", processSupportHelp)
-    .addNode("process-chat-history-query", processChatHistoryQuery)
 
     // Edges setup starts
     .addEdge(START, "process-message")
     .addConditionalEdges("process-message", processMessageEdges)
     .addConditionalEdges("process-support", processSupportEdges)
 
-    .addEdge("process-chat-history-query", END)
     .addEdge("process-other", END)
     .addEdge("process-support-question", END)
     .addEdge("process-support-help", END);
