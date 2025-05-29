@@ -6,6 +6,7 @@
     "start": "bun run src/index.ts",
     "dev": "bun --watch run src/index.ts",
     "build": "bun build src/index.ts --outdir ./dist",
+    "commands:deploy": "bun run utils/slash-deploy.ts",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "test": "bun test"
@@ -23,13 +24,15 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@copilotkit/backend": "^0.37.0",
     "@langchain/core": "^0.3.42",
     "@langchain/langgraph": "^0.2.54",
+    "@types/uuid": "^10.0.0",
+    "composio-core": "^0.5.39",
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
     "langchain": "^0.3.19",
-    "openai": "^4.86.2",
+    "openai": "^4.100.0",
+    "uuid": "^11.1.0",
     "zod": "^3.24.2"
   }
 }
