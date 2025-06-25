@@ -7,6 +7,9 @@
 [![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com/)
 
 > [!NOTE]
+> 👀 I have a blog post about this project on freeCodeCamp. Check it out [here](https://www.freecodecamp.org/news/build-a-langgraph-composio-powered-discord-bot/).
+
+> [!NOTE]
 > This project demonstrates how **graph-based workflows** work in practice, using LangGraph to create intelligent, context-aware bot interactions with dynamic message routing and tool integration. Take this as an idea to how you can use LangGraph in unusual ways ;)
 
 ## 🌟 Overview
